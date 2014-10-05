@@ -34,17 +34,8 @@
 //Control Config//
 //////////////////
 
-//TVexJoysticks strafeLeft = Btn7L;
-//TVexJoysticks strafeRight = Btn7R;
-
 TVexJoysticks up = Btn5U;
 TVexJoysticks down = Btn5D;
-
-TVexJoysticks left_up = Btn7U;
-TVexJoysticks left_down = Btn7D;
-
-TVexJoysticks right_up = Btn8U;
-TVexJoysticks right_down = Btn8D;
 
 TVexJoysticks clawOpen = Btn6U;
 TVexJoysticks clawClose = Btn6D;
