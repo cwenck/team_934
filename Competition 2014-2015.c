@@ -13,12 +13,20 @@
 
 #pragma platform(VEX)
 
+///////////////
+//COMPETITION//
+///////////////
+
 //Competition Control and Duration Settings
 #pragma competitionControl(Competition)
 #pragma autonomousDuration(20)
 #pragma userControlDuration(120)
 
 #include "Vex_Competition_Includes.c"   //Main competition background code...do not modify!
+
+/////////////////
+//ROBOT CONTROL//
+/////////////////
 
 #include "LCD Display Functions 2014-2015.h"
 
@@ -97,18 +105,16 @@ void stopAllMotors();
 void resetDriveEncoders();
 void setLeftMotorSpeed(int speed, WheelDirection dir = same);
 void setRightMotorSpeed(int speed, WheelDirection dir = same);
-//void setLeftLiftSpeed(int speed);
-//void setRightLiftSpeed(int speed);
+void setLeftLiftSpeed(int speed);
+void setRightLiftSpeed(int speed);
 void setLiftSpeed(int speed);
 void strafe(int speed, Side dir);
 void drive(int speed);
-void moveLift(int speed);
 void handleClawInput();
 void basicStickDrive();
 
 void handleLiftInput();
 void handleDriveInput();
-//void toggleDriveInput();
 void readInput();
 
 ////////////////////////////////
@@ -139,6 +145,10 @@ void stopAllMotors() {
     motor[port9]  = 0;
     motor[port10] = 0;
 }
+
+/////////
+//DRIVE//
+/////////
 
 void resetDriveEncoders() {
     nMotorEncoder[backLeft] = 0;
@@ -208,20 +218,70 @@ void drive(int speed) {
     setRightMotorSpeed(speed);
 }
 
-//void setLeftLiftSpeed(int speed){
-//	motor[leftLift] = speed;
-//	motor[leftLift2] = speed;
-//}
+void basicStickDrive(){
+        if(abs(vexRT[forward_backward]) > abs(vexRT[left_right])){
+            drive(vexRT[forward_backward]);
+        }else{
+            setRightMotorSpeed(-vexRT[left_right]);
+            setLeftMotorSpeed(vexRT[left_right]);
+    }
+}
 
-//void setRightLiftSpeed(int speed){
-//	motor[rightLift] = speed;
-//	motor[rightLift2] = speed;
-//}
+void basicStrafing(){
+        if(abs(vexRT[forward_backward_strafe]) > abs(vexRT[left_right_strafe])){
+            drive(vexRT[forward_backward_strafe]);
+        }else{
+            if(vexRT[left_right_strafe] < 0){
+                strafe(vexRT[left_right_strafe], left);
+            } else {
+                strafe(vexRT[left_right_strafe], right);
+            }
+        }
+}
 
-void setLiftSpeed(int speed){
+void handleDriveInput() {
+    if(abs(vexRT[forward_backward]) <= DRIVE_THRESHOLD && abs(vexRT[left_right]) <= DRIVE_THRESHOLD){
+        basicStrafing();
+    } else {
+        basicStickDrive();
+    }
+}
+
+
+////////
+//LIFT//
+////////
+
+void setLeftLiftSpeed(int speed){
 	motor[leftLift] = speed;
+}
+
+void setRightLiftSpeed(int speed){
 	motor[rightLift] = speed;
 }
+
+void setLiftSpeed(int speed){
+	setRightLiftSpeed(speed);
+	setLeftLiftSpeed(speed);
+}
+
+/*
+ * Speed is the speed that will be applied to the motors
+ * Use a positive value for up and a negetive one for down
+ */
+void handleLiftInput() {
+    if (vexRT[up] == 1) {
+        setLiftSpeed(LIFT_SPEED);
+    } else if (vexRT[down] == 1) {
+        setLiftSpeed(-LIFT_SPEED);
+    } else {
+        setLiftSpeed(0);
+    }
+}
+
+////////
+//CLAW//
+////////
 
 void handleClawInput(){
 	if(vexRT[clawOpen] == 1){
@@ -233,103 +293,10 @@ void handleClawInput(){
 	}
 }
 
-/*
- * Speed is the speed that will be applied to the motors
- * Use a positive value for up and a negetive one for down
- */
-void moveLift(int speed) {
-    //setLeftLiftSpeed(speed);
-    //setRightLiftSpeed(speed);
-		setLiftSpeed(speed);
-}
-
-void handleLiftInput() {
-    if (vexRT[up] == 1) {
-        moveLift(LIFT_SPEED);
-    } else if (vexRT[down] == 1) {
-        moveLift(-LIFT_SPEED);
-    } else {
-    	moveLift(0);
-  	}
-    //else {
-   	//		if (vexRT[left_up] == 1) {
-    //  	  setLeftLiftSpeed(ADJUST_LIFT_SPEED);
-   	//		} else if (vexRT[left_down] == 1) {
-   	//    	 setLeftLiftSpeed(-ADJUST_LIFT_SPEED);
-  		//	} else {
-    //   		setLeftLiftSpeed(0);
-    //   	}
-
-    //   	if (vexRT[right_up] == 1) {
-    //    	setRightLiftSpeed(ADJUST_LIFT_SPEED);
-    //		} else if (vexRT[right_down] == 1) {
-    //  		  setRightLiftSpeed(-ADJUST_LIFT_SPEED);
-    //		} else {
-    // 		 	  setRightLiftSpeed(0);
-    //		}
-    //	}
-    }
-
-void basicStickDrive(){
-		if(abs(vexRT[forward_backward]) > abs(vexRT[left_right])){
-			drive(vexRT[forward_backward]);
-		}else{
-			setRightMotorSpeed(-vexRT[left_right]);
-			setLeftMotorSpeed(vexRT[left_right]);
-		//	if(vexRT[left_right] > 0){
-		//		setLeftMotorSpeed(vexRT[left_right]);
-		//		setRightMotorSpeed(vexRT[left_right], towards);
-		//	} else {
-		//		setLeftMotorSpeed(-vexRT[left_right], towards);
-		//		setRightMotorSpeed(-vexRT[left_right]);
-		//}
-	}
-}
-
-void basicStrafing(){
-		if(abs(vexRT[forward_backward_strafe]) > abs(vexRT[left_right_strafe])){
-			drive(vexRT[forward_backward_strafe]);
-		}else{
-			if(vexRT[left_right_strafe] < 0){
-				strafe(vexRT[left_right_strafe], left);
-			} else {
-				strafe(vexRT[left_right_strafe], right);
-			}
-		}
-}
-
-//void toggleDriveInput(){
-//	if(vexRT[toggle_drive] == 1 && driveModeButtonPressed == false){
-//		driveModeButtonPressed = true;
-//		driveMode = !driveMode;
-//	} else {
-//		driveModeButtonPressed = false;
-//	}
-//}
-
-void handleDriveInput() {
-	//toggleDriveInput();
-	//if(driveMode){
-	//	basicStickDrive();
-	//}else{
-	//	basicStrafing();
-	//}
-
-	if(abs(vexRT[forward_backward]) <= DRIVE_THRESHOLD && abs(vexRT[left_right]) <= DRIVE_THRESHOLD){
-		basicStrafing();
-	} else {
-		basicStickDrive();
-	}
-}
-
 void readInput() {
     handleLiftInput();
     handleDriveInput();
     handleClawInput();
-}
-
-void moveMotor(float percentageOfPower){
-	motor[port7] = percentageOfPower * vexRT[Ch2];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +313,7 @@ void pre_auton()
   // Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
   // Autonomous and Tele-Op modes. You will need to manage all user created tasks if set to false.
   bStopTasksBetweenModes = true;
-
+  resetDriveEncoders();
 	// All activities that occur before the competition starts
 	// Example: clearing encoders, setting servo positions, ...
 }
